@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#fafaf7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="¿Qué le duele a Pauli?">
+<meta name="apple-mobile-web-app-title" content="Pauli Dolores">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23fcebeb'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='110'>🤕</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23fcebeb'/><text x='90' y='90' font-size='130' text-anchor='middle' dominant-baseline='central'>%F0%9F%A4%95</text></svg>">
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤕</text></svg>">
-<title>¿Qué le duele a Pauli?</title>
+<title>Pauli Dolores</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: #ebe9e1; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
@@ -26,13 +26,8 @@
     box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   }
 
-  /* status bar */
-  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 4px; font-size: 13px; font-weight: 600; }
-  .battery { display: inline-block; width: 16px; height: 9px; border: 1px solid #1a1a1a; border-radius: 2px; position: relative; }
-  .battery::after { content: ''; display: block; width: 11px; height: 5px; background: #1a1a1a; margin: 1px; border-radius: 0.5px; }
-
   /* header */
-  .header { padding: 18px 20px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .header { padding: 24px 20px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
   .header-text p { font-size: 11px; color: #888; margin-bottom: 3px; letter-spacing: 0.6px; font-weight: 600; }
   .header-text h1 { font-size: 23px; font-weight: 600; line-height: 1.2; letter-spacing: -0.3px; }
   .header-emoji { width: 38px; height: 38px; border-radius: 50%; background: #e6f1fb; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
@@ -135,14 +130,9 @@
 
 <div class="phone">
 
-  <div class="statusbar">
-    <span id="clock">9:41</span>
-    <span class="battery"></span>
-  </div>
-
   <div class="header">
     <div class="header-text">
-      <p>¿QUÉ LE DUELE A PAULI?</p>
+      <p>PAULI DOLORES</p>
       <h1 id="greeting">Hoy, ¿qué te duele?</h1>
     </div>
     <div class="header-emoji">🤕</div>
@@ -513,15 +503,6 @@
   footer.addEventListener('mouseup', endPress);
   footer.addEventListener('mouseleave', endPress);
   footer.addEventListener('touchend', endPress);
-
-  // ---------- clock ----------
-  function updateClock() {
-    const d = new Date();
-    document.getElementById('clock').textContent =
-      d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
-  }
-  updateClock();
-  setInterval(updateClock, 30000);
 
   // ---------- init ----------
   renderAll();
