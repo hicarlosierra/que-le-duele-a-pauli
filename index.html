@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fafaf7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="¿Qué le duele a Pauli?">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23fcebeb'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='110'>🤕</text></svg>">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤕</text></svg>">
+<title>¿Qué le duele a Pauli?</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: #ebe9e1; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
+  body { display: flex; justify-content: center; padding: 20px 12px 40px; }
+
+  .phone {
+    width: 100%;
+    max-width: 380px;
+    background: #fafaf7;
+    border-radius: 28px;
+    border: 0.5px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  /* status bar */
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 4px; font-size: 13px; font-weight: 600; }
+  .battery { display: inline-block; width: 16px; height: 9px; border: 1px solid #1a1a1a; border-radius: 2px; position: relative; }
+  .battery::after { content: ''; display: block; width: 11px; height: 5px; background: #1a1a1a; margin: 1px; border-radius: 0.5px; }
+
+  /* header */
+  .header { padding: 18px 20px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .header-text p { font-size: 11px; color: #888; margin-bottom: 3px; letter-spacing: 0.6px; font-weight: 600; }
+  .header-text h1 { font-size: 23px; font-weight: 600; line-height: 1.2; letter-spacing: -0.3px; }
+  .header-emoji { width: 38px; height: 38px; border-radius: 50%; background: #e6f1fb; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+
+  /* active card */
+  .active {
+    margin: 14px 16px 18px;
+    background: #fcebeb;
+    border-radius: 14px;
+    padding: 16px;
+    border: 0.5px solid #f09595;
+  }
+  .active-empty {
+    background: #eaf3de;
+    border-color: #97c459;
+  }
+  .active-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .active-tag { font-size: 11px; font-weight: 600; color: #791f1f; letter-spacing: 0.5px; }
+  .active-empty .active-tag { color: #27500a; }
+  .active-time { font-size: 11px; color: #a32d2d; }
+  .active-empty .active-time { color: #3b6d11; }
+  .active-zone { font-size: 18px; font-weight: 600; color: #501313; margin-bottom: 4px; }
+  .active-empty .active-zone { color: #173404; }
+  .active-quote { font-size: 13px; color: #791f1f; font-style: italic; }
+  .active-empty .active-quote { color: #27500a; font-style: normal; }
+
+  /* metric grid */
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px; }
+  .metric { background: #f1efe8; border-radius: 12px; padding: 14px; }
+  .metric-label { font-size: 10px; color: #888; margin-bottom: 6px; letter-spacing: 0.5px; font-weight: 600; }
+  .metric-value { font-size: 26px; font-weight: 600; line-height: 1; letter-spacing: -0.5px; }
+  .metric-value.small { font-size: 17px; line-height: 1.2; letter-spacing: -0.2px; }
+  .metric-sub { font-size: 10px; color: #aaa; margin-top: 5px; }
+  .metric-sub.up { color: #639922; }
+
+  /* section title */
+  .section { padding: 22px 20px 6px; }
+  .section h2 { font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; letter-spacing: -0.1px; }
+  .section h2 span:last-child { font-size: 11px; color: #aaa; font-weight: 400; }
+
+  /* ranking */
+  .rank-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .rank-medal { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+  .rank-num { font-size: 13px; width: 22px; text-align: center; color: #888; flex-shrink: 0; }
+  .rank-name { font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-bar-wrap { flex: 1.3; height: 6px; background: #f1efe8; border-radius: 3px; overflow: hidden; }
+  .rank-bar { height: 100%; transition: width 0.4s ease; }
+  .rank-count { font-size: 12px; font-weight: 600; width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* history */
+  .hist-item { display: flex; gap: 10px; padding: 10px 12px; background: #f1efe8; border-radius: 12px; margin-bottom: 6px; }
+  .hist-icon { font-size: 16px; flex-shrink: 0; }
+  .hist-body { flex: 1; min-width: 0; }
+  .hist-zone { font-size: 13px; font-weight: 600; }
+  .hist-meta { font-size: 11px; color: #888; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* forecast */
+  .forecast { margin: 18px 16px 0; background: #eeedfe; border-radius: 14px; padding: 14px; border: 0.5px solid #afa9ec; }
+  .forecast-tag { font-size: 11px; font-weight: 600; color: #3c3489; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .forecast-text { font-size: 14px; color: #26215c; line-height: 1.4; }
+
+  /* CTA */
+  .cta-wrap { padding: 18px 16px 20px; }
+  .cta { width: 100%; padding: 15px; background: #1a1a1a; color: #fafaf7; border: none; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+  .cta:active { transform: scale(0.98); }
+  .footer { font-size: 10px; text-align: center; color: #bbb; margin-top: 10px; user-select: none; -webkit-user-select: none; cursor: pointer; }
+
+  /* empty states */
+  .empty { font-size: 12px; color: #aaa; font-style: italic; text-align: center; padding: 14px 0; }
+
+  /* modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
+  .modal-bg.show { display: flex; }
+  .modal { width: 100%; max-width: 380px; background: #fafaf7; border-radius: 24px 24px 0 0; padding: 22px 20px 28px; animation: slideup 0.25s ease; }
+  @keyframes slideup { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
+  .modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .field { margin-bottom: 14px; }
+  .field label { font-size: 11px; font-weight: 600; color: #666; letter-spacing: 0.4px; display: block; margin-bottom: 6px; }
+  .field select, .field input, .field textarea {
+    width: 100%; padding: 12px 14px; font-size: 15px; font-family: inherit;
+    border: 1px solid #e0ddd2; background: #fafaf7; border-radius: 10px;
+    color: #1a1a1a; -webkit-appearance: none; appearance: none;
+  }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23888' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  .field textarea { resize: none; min-height: 60px; font-family: inherit; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a1a; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 6px; }
+  .btn-cancel { flex: 1; padding: 14px; background: #f1efe8; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; color: #1a1a1a; cursor: pointer; font-family: inherit; }
+  .btn-save { flex: 1.3; padding: 14px; background: #1a1a1a; color: #fafaf7; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-cancel:active, .btn-save:active { transform: scale(0.98); }
+
+  /* toast */
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120%); background: #1a1a1a; color: #fafaf7; padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="statusbar">
+    <span id="clock">9:41</span>
+    <span class="battery"></span>
+  </div>
+
+  <div class="header">
+    <div class="header-text">
+      <p>¿QUÉ LE DUELE A PAULI?</p>
+      <h1 id="greeting">Hoy, ¿qué te duele?</h1>
+    </div>
+    <div class="header-emoji">🤕</div>
+  </div>
+
+  <div id="active-slot"></div>
+
+  <div class="metrics">
+    <div class="metric">
+      <p class="metric-label">DÍAS SIN DOLOR</p>
+      <p class="metric-value" id="m-streak">0</p>
+      <p class="metric-sub" id="m-streak-sub">aún no hay datos</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">DOLORES ESTA SEMANA</p>
+      <p class="metric-value" id="m-week">0</p>
+      <p class="metric-sub" id="m-week-sub">empezamos a contar</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">ZONA TOP DEL MES</p>
+      <p class="metric-value small" id="m-top">—</p>
+      <p class="metric-sub" id="m-top-sub">sin diagnósticos</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">DR. CARLOS DICE</p>
+      <p class="metric-value small" id="m-dr">"se te pasa"</p>
+      <p class="metric-sub">precisión: 94%</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span>Top zonas históricas</span><span>all time</span></h2>
+    <div id="ranking"></div>
+  </div>
+
+  <div class="section">
+    <h2><span>Últimos partes médicos</span><span id="hist-count"></span></h2>
+    <div id="history"></div>
+  </div>
+
+  <div class="forecast">
+    <p class="forecast-tag">PRONÓSTICO PARA HOY</p>
+    <p class="forecast-text" id="forecast-text">98% probabilidad de que te duela algo nuevo antes de cenar 🔮</p>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="cta" onclick="openModal()">+ Reportar nuevo dolor</button>
+    <p class="footer" id="footer">v1.0 · hecho con amor por Carlos 💚</p>
+  </div>
+
+</div>
+
+<!-- modal -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Reportar nuevo dolor</h3>
+    <p class="modal-sub">Cuéntale al Dr. Carlos qué te pasa hoy.</p>
+
+    <div class="field">
+      <label>ZONA AFECTADA</label>
+      <select id="f-zone" onchange="onZoneChange()">
+        <option value="Lumbar">Lumbar 🦴</option>
+        <option value="Cervicales">Cervicales 🦴</option>
+        <option value="Cabeza">Cabeza 🧠</option>
+        <option value="Cuello">Cuello 😩</option>
+        <option value="Rodilla">Rodilla 🦵</option>
+        <option value="Tobillo">Tobillo 🦶</option>
+        <option value="Garganta">Garganta 🤧</option>
+        <option value="Estómago">Estómago 🫃</option>
+        <option value="Espalda">Espalda 💀</option>
+        <option value="algo aquí">"algo aquí" 🫥</option>
+        <option value="__custom__">Otro… ✍️</option>
+      </select>
+    </div>
+
+    <div class="field" id="custom-wrap" style="display:none;">
+      <label>QUÉ ZONA</label>
+      <input type="text" id="f-custom" placeholder="ej. el dedo pequeño del pie" maxlength="40">
+    </div>
+
+    <div class="field">
+      <label>QUÉ DICE PAULA (LITERAL)</label>
+      <textarea id="f-quote" placeholder='ej. "no sé, me he levantado así"' maxlength="120"></textarea>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveDolor()">Reportar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- data ----------
+  const STORAGE_KEY = 'paula_pain_tracker_v1';
+  let dolores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+  const ZONE_ICONS = {
+    'Lumbar': '🦴', 'Cervicales': '🦴', 'Cabeza': '🧠', 'Cuello': '😩',
+    'Rodilla': '🦵', 'Tobillo': '🦶', 'Garganta': '🤧', 'Estómago': '🫃',
+    'Espalda': '💀', 'algo aquí': '🫥'
+  };
+  const DEFAULT_ICON = '🤕';
+
+  const FORECASTS = [
+    '98% probabilidad de que te duela algo nuevo antes de cenar 🔮',
+    'Lluvia de molestias prevista para esta tarde ☔',
+    'Alerta amarilla: posible dolor lumbar al levantarse del sofá ⚠️',
+    'Frente cervical entrando por el norte 🌬️',
+    'Hoy tocan dolores rotativos cada 90 min, según el modelo ⏱️',
+    'Posibilidades de "me duele todo" superiores al 70% 📈',
+    'Estado del cuerpo: mantenimiento programado 🛠️'
+  ];
+
+  const DR_QUOTES = [
+    '"se te pasa"', '"bebe agua"', '"estira un poco"',
+    '"te has dormido raro"', '"no será nada"', '"a ver mañana"', '"calor seco"'
+  ];
+
+  // ---------- helpers ----------
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(dolores)); }
+
+  function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'ahora mismo';
+    if (m < 60) return `hace ${m} min`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `hace ${h} h`;
+    const d = Math.floor(h / 24);
+    if (d === 1) return 'ayer';
+    if (d < 7) return `hace ${d} días`;
+    const w = Math.floor(d / 7);
+    if (w < 4) return `hace ${w} sem`;
+    return new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  }
+
+  function iconFor(zone) { return ZONE_ICONS[zone] || DEFAULT_ICON; }
+
+  function pickFromSeed(arr, seed) {
+    const idx = Math.abs(seed) % arr.length;
+    return arr[idx];
+  }
+
+  // ---------- render ----------
+  function renderActive() {
+    const slot = document.getElementById('active-slot');
+    if (dolores.length === 0) {
+      slot.innerHTML = `
+        <div class="active active-empty">
+          <div class="active-head">
+            <span class="active-tag">SIN DOLOR ACTIVO 🟢</span>
+            <span class="active-time">milagro</span>
+          </div>
+          <p class="active-zone">Todo en orden</p>
+          <p class="active-quote">disfruta mientras dure</p>
+        </div>`;
+      return;
+    }
+    const last = dolores[0];
+    slot.innerHTML = `
+      <div class="active">
+        <div class="active-head">
+          <span class="active-tag">DOLOR ACTIVO 🔴</span>
+          <span class="active-time">${timeAgo(last.ts)}</span>
+        </div>
+        <p class="active-zone">${escapeHtml(last.zone)}</p>
+        <p class="active-quote">${last.quote ? '"' + escapeHtml(last.quote) + '"' : '(sin comentarios)'}</p>
+      </div>`;
+  }
+
+  function renderMetrics() {
+    // streak: días desde el último dolor
+    if (dolores.length === 0) {
+      document.getElementById('m-streak').textContent = '∞';
+      document.getElementById('m-streak-sub').textContent = 'aún no hay datos';
+    } else {
+      const last = dolores[0].ts;
+      const days = Math.floor((Date.now() - last) / (1000 * 60 * 60 * 24));
+      document.getElementById('m-streak').textContent = days;
+      // récord histórico = mayor gap entre dolores consecutivos
+      let record = 0;
+      for (let i = 0; i < dolores.length - 1; i++) {
+        const gap = Math.floor((dolores[i].ts - dolores[i+1].ts) / (1000*60*60*24));
+        if (gap > record) record = gap;
+      }
+      // y también gap actual cuenta
+      if (days > record) record = days;
+      document.getElementById('m-streak-sub').textContent = record > 0 ? `récord: ${record} día${record===1?'':'s'}` : 'récord: 0 días, ánimo';
+    }
+
+    // dolores esta semana
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const week = dolores.filter(d => d.ts > weekAgo).length;
+    document.getElementById('m-week').textContent = week;
+    if (dolores.length < 4) {
+      document.getElementById('m-week-sub').textContent = 'pocos datos aún';
+      document.getElementById('m-week-sub').classList.remove('up');
+    } else {
+      const totalDays = Math.max(1, (Date.now() - dolores[dolores.length-1].ts) / (1000*60*60*24));
+      const avgPerWeek = (dolores.length / totalDays) * 7;
+      if (avgPerWeek > 0) {
+        const pct = Math.round(((week - avgPerWeek) / avgPerWeek) * 100);
+        if (pct > 0) {
+          document.getElementById('m-week-sub').textContent = `↑ ${pct}% vs media`;
+          document.getElementById('m-week-sub').classList.add('up');
+        } else if (pct < 0) {
+          document.getElementById('m-week-sub').textContent = `↓ ${Math.abs(pct)}% vs media`;
+          document.getElementById('m-week-sub').classList.remove('up');
+        } else {
+          document.getElementById('m-week-sub').textContent = 'en la media';
+          document.getElementById('m-week-sub').classList.remove('up');
+        }
+      }
+    }
+
+    // top zona del mes
+    const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const monthDolores = dolores.filter(d => d.ts > monthAgo);
+    if (monthDolores.length === 0) {
+      document.getElementById('m-top').textContent = '—';
+      document.getElementById('m-top-sub').textContent = 'sin diagnósticos';
+    } else {
+      const counts = {};
+      monthDolores.forEach(d => { counts[d.zone] = (counts[d.zone]||0) + 1; });
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+      const [topZone, topCount] = sorted[0];
+      document.getElementById('m-top').innerHTML = escapeHtml(topZone) + ' 🏆';
+      document.getElementById('m-top-sub').textContent = `${topCount} aparición${topCount===1?'':'es'}`;
+    }
+
+    // dr. carlos dice (rotativo según día)
+    const day = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    document.getElementById('m-dr').textContent = pickFromSeed(DR_QUOTES, day);
+  }
+
+  function renderRanking() {
+    const cont = document.getElementById('ranking');
+    if (dolores.length === 0) {
+      cont.innerHTML = '<p class="empty">Aún no hay ranking. Reporta el primer dolor.</p>';
+      return;
+    }
+    const counts = {};
+    dolores.forEach(d => { counts[d.zone] = (counts[d.zone]||0) + 1; });
+    const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+    const max = sorted[0][1];
+    const medals = ['🥇', '🥈', '🥉'];
+    const colors = ['#d85a30', '#ef9f27', '#ef9f27', '#97c459', '#97c459'];
+    cont.innerHTML = sorted.map(([zone, n], i) => {
+      const w = Math.round((n / max) * 100);
+      return `
+        <div class="rank-row">
+          <span class="${i<3?'rank-medal':'rank-num'}">${i<3?medals[i]:(i+1)}</span>
+          <span class="rank-name">${escapeHtml(zone)}</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:${w}%; background:${colors[i]};"></div></div>
+          <span class="rank-count">${n}</span>
+        </div>`;
+    }).join('');
+  }
+
+  function renderHistory() {
+    const cont = document.getElementById('history');
+    const countEl = document.getElementById('hist-count');
+    if (dolores.length === 0) {
+      cont.innerHTML = '<p class="empty">Sin partes médicos todavía.</p>';
+      countEl.textContent = '';
+      return;
+    }
+    countEl.textContent = `${dolores.length} total${dolores.length===1?'':'es'}`;
+    const last4 = dolores.slice(0, 4);
+    cont.innerHTML = last4.map(d => `
+      <div class="hist-item">
+        <span class="hist-icon">${iconFor(d.zone)}</span>
+        <div class="hist-body">
+          <p class="hist-zone">${escapeHtml(d.zone)}</p>
+          <p class="hist-meta">${d.quote ? '"' + escapeHtml(d.quote) + '" · ' : ''}${timeAgo(d.ts)}</p>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderForecast() {
+    const day = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    document.getElementById('forecast-text').innerHTML = pickFromSeed(FORECASTS, day);
+  }
+
+  function renderGreeting() {
+    const h = new Date().getHours();
+    let g = 'Hoy, ¿qué te duele?';
+    if (h < 11) g = 'Buenos días, ¿qué duele?';
+    else if (h >= 22) g = 'Antes de dormir, ¿qué duele?';
+    else if (h >= 18) g = 'Esta tarde, ¿qué duele?';
+    document.getElementById('greeting').textContent = g;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function renderAll() {
+    renderGreeting();
+    renderActive();
+    renderMetrics();
+    renderRanking();
+    renderHistory();
+    renderForecast();
+  }
+
+  // ---------- modal ----------
+  function openModal() {
+    document.getElementById('modal').classList.add('show');
+    document.getElementById('f-zone').value = 'Lumbar';
+    document.getElementById('f-quote').value = '';
+    document.getElementById('f-custom').value = '';
+    document.getElementById('custom-wrap').style.display = 'none';
+    setTimeout(() => document.getElementById('f-quote').focus(), 250);
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+  function onZoneChange() {
+    const v = document.getElementById('f-zone').value;
+    document.getElementById('custom-wrap').style.display = v === '__custom__' ? 'block' : 'none';
+    if (v === '__custom__') setTimeout(() => document.getElementById('f-custom').focus(), 50);
+  }
+  function saveDolor() {
+    let zone = document.getElementById('f-zone').value;
+    if (zone === '__custom__') {
+      zone = document.getElementById('f-custom').value.trim();
+      if (!zone) { showToast('Pon una zona, anda'); return; }
+    }
+    const quote = document.getElementById('f-quote').value.trim();
+    dolores.unshift({ zone, quote, ts: Date.now() });
+    save();
+    renderAll();
+    closeModal();
+    showToast('Dolor registrado 🩹');
+  }
+
+  // ---------- toast ----------
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ---------- footer reset (long press) ----------
+  let pressTimer;
+  const footer = document.getElementById('footer');
+  function startPress() {
+    pressTimer = setTimeout(() => {
+      if (confirm('¿Borrar todo el historial de dolores de Paula?')) {
+        dolores = [];
+        save();
+        renderAll();
+        showToast('Historial borrado 🧹');
+      }
+    }, 1500);
+  }
+  function endPress() { clearTimeout(pressTimer); }
+  footer.addEventListener('mousedown', startPress);
+  footer.addEventListener('touchstart', startPress);
+  footer.addEventListener('mouseup', endPress);
+  footer.addEventListener('mouseleave', endPress);
+  footer.addEventListener('touchend', endPress);
+
+  // ---------- clock ----------
+  function updateClock() {
+    const d = new Date();
+    document.getElementById('clock').textContent =
+      d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ---------- init ----------
+  renderAll();
+  // re-render time-relative bits cada minuto
+  setInterval(() => { renderActive(); renderHistory(); renderMetrics(); }, 60000);
+</script>
+
+</body>
+</html>
